@@ -1,17 +1,14 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include <chrono>
 #include <stack>
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include "Intersection Algorithms.h";
+#include "../Index Builder/InvertedIndexReader.h"
 using namespace std;
 typedef long long ll;
-
-const string path = ".";
-const int maxID = 4534;
 
 //Goal: Handle these queries
 vector<string> queries = {
@@ -22,46 +19,8 @@ vector<string> queries = {
 	"((NOT (prime OR number)) AND tree)"
 };
 
-//Returns a map term->postingList 
-unordered_map<string, vector<int>> getPostingLists() {
-	ifstream ifs(path + "\\Inverted Indexes.txt");
-	unordered_map<string, vector<int>> res;
-
-	while (true) {
-		string curWord; ifs >> curWord;
-		if (ifs.fail()) { break; }
-		curWord.pop_back();
-
-		vector<int> curID;
-		int n; ifs >> n;
-		for (int i = 0; i < n; i++) {
-			string curS; ifs >> curS;
-			if (curS.back() == ',') { curS.pop_back(); }
-			curID.push_back(stoi(curS));
-		}
-
-		res[curWord] = curID;
-	}
-
-	ifs.close();
-	return move(res);
-}
-
-//Get the documents in order; so res[2] returns the path of the document with ID 2
-vector<string> getDocPaths() {
-	ifstream ifs(path + "\\Document Order.txt");
-	vector<string> res;
-	while (true) {
-		string cur;	getline(ifs, cur);
-		if (ifs.fail()) { break; }
-		res.push_back(cur);
-	}
-	ifs.close();
-	return move(res);
-}
-
 //Returns a OR b
-vector<int> getUnion(vector<int>& a, vector<int>& b) {
+vector<int> getUnion(const vector<int>& a, const vector<int>& b) {
 	vector<int> res;
 	int i = 0, j = 0;
 	int n = a.size(), m = b.size();
@@ -79,7 +38,7 @@ vector<int> getUnion(vector<int>& a, vector<int>& b) {
 }
 
 //Returns a AND NOT b
-vector<int> getIntersectionNot(vector<int>& a, vector<int>& b) {
+vector<int> getIntersectionNot(const vector<int>& a, const vector<int>& b) {
 	vector<int> res;
 	int i = 0, j = 0;
 	int n = a.size(), m = b.size();
@@ -95,7 +54,7 @@ vector<int> getIntersectionNot(vector<int>& a, vector<int>& b) {
 }
 
 //Gets all elements from 0 to maxID not in a
-vector<int> reverseVector(vector<int>& a) {
+vector<int> reverseVector(const vector<int>& a, int maxID) {
 	vector<int> res;
 	int j = 0, n = a.size();
 	for (int i = 0; i <= maxID; i++) {
@@ -105,11 +64,11 @@ vector<int> reverseVector(vector<int>& a) {
 	return move(res);
 }
 
-bool isNum(string& s) {
+bool isNum(const string& s) {
 	return s[0] >= '0' && s[0] <= '9';
 }
 
-vector<int> handleQuery(string& q, unordered_map<string, vector<int>>& postingLists) {
+vector<int> handleBooleanQuery(const string& q, unordered_map<string, vector<int>>& postingLists, int maxID) {
 	stack<string> S;
 	int n = q.size();
 	vector<pair<vector<int>, bool>> interAns;
@@ -180,16 +139,17 @@ vector<int> handleQuery(string& q, unordered_map<string, vector<int>>& postingLi
 	}
 	
 	vector<int> ans = interAns.back().first;
-	if (interAns.back().second) { return reverseVector(ans); }
+	if (interAns.back().second) { return move(reverseVector(ans, maxID)); }
 	else { return move(ans); }
 }
 
 int main() {
-	vector<string> docPaths = getDocPaths();
-	unordered_map<string, vector<int>> postingLists = getPostingLists();
+	InvertedIndexReader reader;
+	vector<string> docPaths = reader.getDocPaths();
+	unordered_map<string, vector<int>> postingLists = reader.getPostingLists();
 
 	for (int i = 0; i < 5; i++) {
-		vector<int> ans = handleQuery(queries[i], postingLists);
+		vector<int> ans = handleBooleanQuery(queries[i], postingLists, reader.maxID);
 		for (auto& x : ans) { cout << docPaths[x] << '\n'; }
 		cout << '\n' << '\n';
 	}
