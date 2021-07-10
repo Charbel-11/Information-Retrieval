@@ -3,6 +3,8 @@ from html.parser import HTMLParser
 from nltk.corpus import stopwords
 from nltk.stem.porter import *
 from nltk.tokenize import word_tokenize
+import os
+import re
 
 #nltk.download('punkt')
 #nltk.download('stopwords')
@@ -55,3 +57,12 @@ def getTokensFromHTMLDoc(path):
     curData = stripTags(curData)  # Remove HTML data
 
     return normalize(curData)
+
+#Returns an array containing the paths of all HTML files in the cur directory
+def getAllHTMLFiles(curDir):
+    paths = []
+    for curPath, folders, files in os.walk(curDir):
+        for file in files:
+            if (re.search(r".html$", file)):
+                paths.append(os.path.join(curPath, file))
+    return paths

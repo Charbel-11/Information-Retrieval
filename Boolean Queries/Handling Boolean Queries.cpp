@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include "Intersection Algorithms.h";
-#include "../Index Builder/InvertedIndexReader.h"
+#include "../IndexBuilder/InvertedIndexReader.h"
 using namespace std;
 typedef long long ll;
 
