@@ -30,4 +30,4 @@ There is some code to check and plot some empirical laws including:
 * Heap's Law (there is a log-log relation between the total number of tokens in the corpus and the number of unique terms)
   * It suggests that the dictionary size (# of unique terms) always increase when there are more documents in the collection
 * Zipf's Law (the ith most frequent term has frequency proportional to 1/i)
-  * It suggests that there are a few very frequent terms and many very rare terms in the collection
+  * It suggests that there are few very frequent terms and many very rare terms in the collection
