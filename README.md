@@ -1,4 +1,4 @@
-# Information-Retrieval
+# Information Retrieval
 
 Algorithms for building inverted indexes, handling boolean queries, phrase queries, error correction, ranking documents (tf-idf + PageRank) and improving the query (relevance feedback) or the documents' representations (latent semantic indexing) are available.
 
